@@ -1,12 +1,16 @@
-// import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'main.dart';
+// import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => TimeLogs(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => TimeLogs()),
+        ChangeNotifierProvider(create: (_) => AppConfig()),
+      ],
       child: MyApp(),
     );
   }
@@ -17,12 +21,17 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        appBar: AppBar(title: Text('记录'), backgroundColor: Colors.amber),
+        appBar: AppBar(
+            title: Text('记录'),
+            backgroundColor: context.watch<AppConfig>().appColor),
         body: TimeLine(),
         floatingActionButton: FloatingActionButton(
           child: Icon(Icons.add),
-          onPressed: () => context.read<TimeLogs>().addLog('摸鱼', Icons.data_usage_outlined,
-              DateTime.now(), DateTime.now().add(Duration(minutes: 120)) ),
+          onPressed: () => context.read<TimeLogs>().addLog(
+              '摸鱼',
+              Icons.data_usage_outlined,
+              DateTime.now(),
+              DateTime.now().add(Duration(minutes: 120))),
           backgroundColor: Colors.red,
         ),
       ),
@@ -70,11 +79,33 @@ class TimeLine extends StatelessWidget {
                   ),
                   // Start time - Finish time
                   Text(
-                    context.watch<TimeLogs>().startTime[index].hour.toString().padLeft(2, '0') + ":" +
-                    context.watch<TimeLogs>().startTime[index].minute.toString().padLeft(2, '0') +
+                    context
+                            .watch<TimeLogs>()
+                            .startTime[index]
+                            .hour
+                            .toString()
+                            .padLeft(2, '0') +
+                        ":" +
+                        context
+                            .watch<TimeLogs>()
+                            .startTime[index]
+                            .minute
+                            .toString()
+                            .padLeft(2, '0') +
                         '-' +
-                    context.watch<TimeLogs>().endTime[index].hour.toString().padLeft(2, '0') + ":" +
-                    context.watch<TimeLogs>().endTime[index].minute.toString().padLeft(2, '0'),
+                        context
+                            .watch<TimeLogs>()
+                            .endTime[index]
+                            .hour
+                            .toString()
+                            .padLeft(2, '0') +
+                        ":" +
+                        context
+                            .watch<TimeLogs>()
+                            .endTime[index]
+                            .minute
+                            .toString()
+                            .padLeft(2, '0'),
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 15.0,
@@ -90,7 +121,12 @@ class TimeLine extends StatelessWidget {
                 child: Container(),
               ),
               Text(
-                context.watch<TimeLogs>().totalTime[index].inMinutes.toString() + ' 分钟',
+                context
+                        .watch<TimeLogs>()
+                        .totalTime[index]
+                        .inMinutes
+                        .toString() +
+                    ' 分钟',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 18.0,
@@ -134,7 +170,9 @@ class TimeLogs with ChangeNotifier {
   List<DateTime> _endTime = <DateTime>[DateTime(2020, 11, 21, 18, 03)];
   List<DateTime> get endTime => _endTime;
 
-  List<Duration> _totalTime = <Duration>[DateTime(2020, 11, 21, 18, 03).difference(DateTime(2020, 11, 21, 16, 03))];
+  List<Duration> _totalTime = <Duration>[
+    DateTime(2020, 11, 21, 18, 03).difference(DateTime(2020, 11, 21, 16, 03))
+  ];
   List<Duration> get totalTime => _totalTime;
 
   void addLog(String log, IconData icon, DateTime startTime, DateTime endTime) {

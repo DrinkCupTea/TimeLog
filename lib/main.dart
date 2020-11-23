@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'homePage.dart';
 import 'dataPage.dart';
@@ -57,3 +58,48 @@ class Pages with ChangeNotifier {
     notifyListeners();
   }
 }
+
+class AppConfig with ChangeNotifier{
+  Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+
+  MaterialColor _appColor = Colors.amber;
+  MaterialColor get appColor => _appColor;
+
+  AppConfig(){
+    initConfig();
+  }
+
+  void initConfig() async{
+    final SharedPreferences prefs = await _prefs;
+    final String colorName = prefs.getString('APP_COLOR');
+    _appColor = getColor(colorName);
+  }
+
+// blue, pink, amber, red, green, black
+  MaterialColor getColor(String name){
+    switch(name){
+      case 'BLUE': 
+        return Colors.blue;
+      case 'PINK': 
+        return Colors.pink;
+      case 'AMBER': 
+        return Colors.amber;
+      case 'RED': 
+        return Colors.red;
+      case 'GREEN': 
+        return Colors.green;
+      case 'BLACK': 
+        return Colors.black;
+      default:
+        return Colors.amber;
+    }
+  }
+
+  void changeColor(String color) async{
+    _appColor = getColor(color);
+    final SharedPreferences prefs = await _prefs;
+    prefs.setString('APP_COLOR', color);
+    notifyListeners();
+  }
+}
+
